@@ -393,6 +393,7 @@ export const bodyPagoMP = (
     </h1>
     <h2>
     ${user.name} ${user.lastname}
+    </h2>
     <ul>
     ${order.orderDetail.orderDetailProducts.map(
       (p) =>
@@ -406,11 +407,22 @@ export const bodyPagoMP = (
     </ul>
     <p>Total ${order.orderDetail.price}$</p>
     
-    </h2>
 
     <p>Tu pago fue ${payments[0].status} 
     </p>
-   </div>
+   
+    <p> Obtuvo gracias a su cupon
+    ${order.giftCard.code}
+    </p>
+    <p>
+  ${
+    order.giftCard && order.giftCard.product
+      ? `${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}`
+      : order.giftCard?.discount
+  }
+</p>
+   
+    </div>
   </body>
 </html>`;
 };

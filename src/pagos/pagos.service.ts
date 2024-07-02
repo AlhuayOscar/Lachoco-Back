@@ -144,7 +144,7 @@ export class PagosService {
         throw error;
       }
     }
-    if (order.country === 'SPAIN') {
+    if (order.country === 'SPAIN' || order.country === 'GLOBAL') {
       let customer = orderById.user.customerId;
       if (!orderById.user.customerId) {
         customer = await stripe.customers
@@ -153,16 +153,13 @@ export class PagosService {
           })
           .then((customer) => customer.id);
       }
-      orderById.orderDetail.orderDetailProducts.forEach((p) =>
-        console.log(typeof Number(p.product.price)),
-      );
       totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
         price_data: {
           product_data: {
             name: p.product.category.name,
             description: p.product.description,
           },
-          currency: 'EUR',
+          currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
           unit_amount: Number(p.product.price) * p.cantidad,
         },
         quantity: p.cantidad,
@@ -240,6 +237,7 @@ export class PagosService {
               },
             },
             user: true,
+            giftCard: { product: true },
           },
         });
         if (orderById.status === status.FINISHED)
@@ -247,6 +245,14 @@ export class PagosService {
         if (!orderById) throw new NotFoundException('Order not found');
         if (orderById.orderDetail.orderDetailProducts.length === 0)
           throw new BadRequestException('Order without products');
+
+        //*Encaso de que tenga cupo actualizar a usado
+        if (orderById.giftCard !== null) {
+          await this.giftCardRepository.update(
+            { id: orderById.giftCard.id },
+            { isUsed: true },
+          );
+        }
 
         await this.orderRepository.update(
           {
