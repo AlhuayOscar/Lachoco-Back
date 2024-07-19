@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
@@ -21,6 +22,7 @@ export class CreateProductDto {
   description: string;
 
   @IsNumber()
+  @Transform(({ value }) => Number(value))
   price: number;
 
   @IsEnum(currency)
@@ -30,6 +32,7 @@ export class CreateProductDto {
   // stock: number;
 
   @IsNumber()
+  @Transform(({ value }) => Number(value))
   presentacion: number;
 
   @IsArray()
